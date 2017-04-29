@@ -1,3 +1,9 @@
+.gitini
+.cproject
+.project/*
+.settings/*
+Debug/*
+
 # Object files
 *.o
 *.ko
@@ -31,3 +37,4 @@
 # Debug files
 *.dSYM/
 *.su
+
