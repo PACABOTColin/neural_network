@@ -76,19 +76,19 @@ void neural_calculate_gradian(neural *current_neural)
 	int i;
 	if(current_neural->error_calculated == false)
 	{
+		current_neural->error_calculated = true;
 		if (current_neural->out_table_size != 0)
 		{
-			current_neural->error_calculated = true;
 			for (i = 0; i < current_neural->out_table_size; ++i)
 			{
 				if(current_neural->out_neural_table[i] != NULL)
 				{
 					neural_calculate_gradian(current_neural->out_neural_table[i]);
-					rv += current_neural->out_neural_table[i]->out_value * current_neural->out_neural_table[i]->out_error;
+					rv += current_neural->out_neural_table[i]->out_value * current_neural->out_neural_table[i]->out_error; // todo : change value of current_neural->out_neural_table[i]->out_error
 				}
 				else
 				{
-					fprintf(stderr, "warning: the neural is currently use whith motor and neural output, this can affect the neural network learning process\n");
+					fprintf(stderr, "warning: the neural is currently use with motor and neural output, this can affect the neural network learning process\n");
 					rv = current_neural->out_error;
 					break;
 				}
@@ -97,13 +97,13 @@ void neural_calculate_gradian(neural *current_neural)
 			{
 				sum += current_neural->coef_table[i] * (*(current_neural->in_value_table[i]));
 			}
+			current_neural->out_error = sum;
 		//	rv *= current_neural->d_rv_function(sum); // uncomment this line if you whant use different neural transfer function
 			rv *= d_sigmoid(sum);
 			current_neural->gradian = rv;
 		}
 		else
 		{
-			sum = 0;
 			for (i = 0; i < current_neural->in_table_size; ++i)
 			{
 				sum += *current_neural->in_value_table[i] * current_neural->coef_table[i];
@@ -118,7 +118,7 @@ void neural_update_weigh(neural *current_neural)
 	for (int i = 0; i < current_neural->in_table_size; ++i)
 	{
 		neural_calculate_gradian(current_neural);
-		current_neural->coef_table[i] = current_neural->coef_table[i] + NU * current_neural->gradian * *current_neural->in_value_table[i];
+		current_neural->coef_table[i] += NU * current_neural->gradian * *(current_neural->in_value_table[i]);
 		if(current_neural->out_neural_table != NULL && current_neural->out_neural_table[i] != NULL)
 		{
 			neural_update_weigh(current_neural->out_neural_table[i]);

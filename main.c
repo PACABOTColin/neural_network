@@ -173,27 +173,6 @@ int main(int argc, char **argv)
 	test_neral(and_neural, &a, &b);
 	printf("end of learning and function\n");
 //	 en of and neral
-	sleep(10);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	for (i = 0; i < 3; ++i)
 	{
@@ -204,7 +183,7 @@ int main(int argc, char **argv)
 	neural_new_sensor_connection(&xor_nerals[1], &a, ((float)rand())/RAND_MAX);
 	neural_new_sensor_connection(&xor_nerals[1], &b, ((float)rand())/RAND_MAX);
 	neural_new_synapse(&xor_nerals[0],&xor_nerals[2], ((float)rand())/RAND_MAX);
-	neural_new_synapse(&xor_nerals[0],&xor_nerals[2], ((float)rand())/RAND_MAX);
+	neural_new_synapse(&xor_nerals[1],&xor_nerals[2], ((float)rand())/RAND_MAX);
 	do
 	{
 		test = true;
@@ -300,64 +279,78 @@ int main(int argc, char **argv)
 			}
 			neural_update_output(&xor_nerals[2]);
 		}
-		for (i = 0; i < 3; ++i) {
-			for (u = 1; u < xor_nerals[i].in_table_size; ++u)
-			{
-				printf("%8f,", xor_nerals[i].coef_table[u]);
-			}
-			printf("|");
-		}
-		a = 1;
-		b = 1;
-		neural_set_value_to_not_calculate(&and_neural);
-		neural_update_output(&and_neural);
-		printf("test a=%.0f, b=%0.f, out = %.0f ", a, b, and_neural.out_value);
-		a = 0;
-		b = 1;
-		neural_set_value_to_not_calculate(&and_neural);
-		neural_update_output(&and_neural);
-		printf("test a=%.0f, b=%0.f, out = %.0f ", a, b, and_neural.out_value);
-		a = 1;
-		b = 0;
-		neural_set_value_to_not_calculate(&and_neural);
-		neural_update_output(&and_neural);
-		printf("test a=%.0f, b=%0.f, out = %.0f ", a, b, and_neural.out_value);
-		a = 0;
-		b = 0;
-		neural_set_value_to_not_calculate(&and_neural);
-		neural_update_output(&and_neural);
-		printf("test a=%.0f, b=%0.f, out = %.0f\n", a, b, and_neural.out_value);
 	}while( !test );
 	a = 1;
-	b = 1;for (i = 0; i < 3; ++i)
+	b = 1;
+	for (i = 0; i < 3; ++i)
 	{
-		neural_set_error_to_not_calculate(&xor_nerals[i]);
+		neural_set_value_to_not_calculate(&xor_nerals[i]);
 	}
 	neural_update_output(&xor_nerals[2]);
-	printf("test a=%f, b=%f, out = %f", a, b, xor_nerals[2].out_value);
+	printf("test a=%f, b=%f, out = %.0f\t", a, b, xor_nerals[2].out_value);
+	for (int i = 0; i < 3; ++i)
+	{
+//			printf("%5f|", xor_nerals[i].out_error);
+		for (int u = 0; u < xor_nerals[i].in_table_size; ++u)
+		{
+			printf("%5f|", *(xor_nerals[i].in_value_table[u]));
+		}
+		printf("|");
+	}
+	printf("\t%5f|\n", xor_nerals[2].out_value);
 	a = 0;
 	b = 1;
 	for (i = 0; i < 3; ++i)
 	{
-		neural_set_error_to_not_calculate(&xor_nerals[i]);
+		neural_set_value_to_not_calculate(&xor_nerals[i]);
 	}
 	neural_update_output(&xor_nerals[2]);
-	printf("test a=%f, b=%f, out = %f", a, b, xor_nerals[2].out_value);
+	printf("test a=%f, b=%f, out = %.0f\t", a, b, xor_nerals[2].out_value);
+	for (int i = 0; i < 3; ++i)
+	{
+//			printf("%5f|", xor_nerals[i].out_error);
+		for (int u = 0; u < xor_nerals[i].in_table_size; ++u)
+		{
+			printf("%5f|", *(xor_nerals[i].in_value_table[u]));
+		}
+		printf("|");
+	}
+	printf("\t%5f|\n", xor_nerals[2].out_value);
 	a = 1;
 	b = 0;
 	for (i = 0; i < 3; ++i)
 	{
-		neural_set_error_to_not_calculate(&xor_nerals[i]);
+		neural_set_value_to_not_calculate(&xor_nerals[i]);
 	}
 	neural_update_output(&xor_nerals[2]);
-	printf("test a=%f, b=%f, out = %f", a, b, xor_nerals[2].out_value);
+	printf("test a=%f, b=%f, out = %.0f\t", a, b, xor_nerals[2].out_value);
+	for (int i = 0; i < 3; ++i)
+	{
+//			printf("%5f|", xor_nerals[i].out_error);
+		for (int u = 0; u < xor_nerals[i].in_table_size; ++u)
+		{
+			printf("%5f|", *(xor_nerals[i].in_value_table[u]));
+		}
+		printf("|");
+	}
+	printf("\t%5f|\n", xor_nerals[2].out_value);
 	a = 0;
 	b = 0;
 	for (i = 0; i < 3; ++i)
 	{
-		neural_set_error_to_not_calculate(&xor_nerals[i]);
+		neural_set_value_to_not_calculate(&xor_nerals[i]);
 	}
 	neural_update_output(&xor_nerals[2]);
-	printf("%f\t%f\t%f\n", a, b, xor_nerals[2].out_value);
+	printf("test a=%f, b=%f, out = %.0f\t", a, b, xor_nerals[2].out_value);
+	for (int i = 0; i < 3; ++i)
+	{
+//			printf("%5f|", xor_nerals[i].out_error);
+		for (int u = 0; u < xor_nerals[i].in_table_size; ++u)
+		{
+			printf("%5f|", *(xor_nerals[i].in_value_table[u]));
+		}
+		printf("|");
+	}
+	printf("\t%5f|\n", xor_nerals[2].out_value);
 	return 0;
 }
