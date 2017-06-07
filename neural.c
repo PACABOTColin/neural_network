@@ -53,9 +53,9 @@ int neural_new_synapse(neural* father, neural* child, float coef)
 int neural_new_sensor_connection(neural* sensor_neural, float *value, float coef)
 {
 	sensor_neural->in_table_size ++;
-	sensor_neural->in_neural_table = realloc(sensor_neural->in_neural_table, sizeof(neural*) * sensor_neural->in_table_size);
 	sensor_neural->in_value_table = realloc(sensor_neural->in_value_table, sizeof(float*) * sensor_neural->in_table_size);
 	sensor_neural->coef_table = realloc(sensor_neural->coef_table, sizeof(float) * sensor_neural->in_table_size);
+	sensor_neural->in_neural_table = realloc(sensor_neural->in_neural_table, sizeof(neural*) * sensor_neural->in_table_size);
 
 	if(sensor_neural->in_neural_table == NULL || sensor_neural->in_value_table == NULL || sensor_neural->coef_table == NULL)
 	{
@@ -119,6 +119,9 @@ void neural_update_weigh(neural *current_neural)
 	{
 		neural_calculate_gradian(current_neural);
 		current_neural->coef_table[i] += NU * current_neural->gradian * *(current_neural->in_value_table[i]);
+	}
+	for (int i = 0; i < current_neural->out_table_size; ++i)
+	{
 		if(current_neural->out_neural_table != NULL && current_neural->out_neural_table[i] != NULL)
 		{
 			neural_update_weigh(current_neural->out_neural_table[i]);

@@ -178,6 +178,7 @@ int main(int argc, char **argv)
 	{
 		initialise_neural(&xor_nerals[i], ((float)rand())/RAND_MAX);
 	}
+	printf("end of initialyse nerals\n");
 	neural_new_sensor_connection(&xor_nerals[0], &a, ((float)rand())/RAND_MAX);
 	neural_new_sensor_connection(&xor_nerals[0], &b, ((float)rand())/RAND_MAX);
 	neural_new_sensor_connection(&xor_nerals[1], &a, ((float)rand())/RAND_MAX);
