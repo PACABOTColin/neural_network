@@ -2,356 +2,158 @@
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
-#include <unistd.h>
+#include <math.h>
 
 #include "neural.h"
+#include "toolbox.h"
+#include "file.h"
 
+extern float entrainement [4764][2];
 
-//int nerone(float input[3], float lenght[3])
-//{
-//	input[2] = 1;
-//	float sum = 0;
-//	for(int i = 0; i < 3; ++i)
-//	{
-//		sum += input[i] * lenght[i];
-//	}
-//	if(sum > 0)
-//	{
-//		return 1;
-//	}
-//	return 0;
-//}
-//
-//int learn_one_value(float input[3], float lenght[3], int theoric_result)
-//{
-//	int result, cnt = 0;
-//	printf("learn for value in : %lf; %lf", input[1], input[2]);
-//	result = nerone(input, lenght);
-//	while(result != theoric_result)
-//	{
-//		cnt++;
-//		for(int i = 0; i < 3; ++i)
-//		{
-//			lenght[i] += NU * (theoric_result - result) * input[i];
-//		}
-//		result = nerone(input, lenght);
-//	}
-//	if(cnt > 0)
-//	{
-//		return 1;
-//	}
-//	return 0;
-//}
-
-//int main(void)
-//{
-//	float input[3], lenght[3]={0,0,0};
-//	int condition;
-//	do
-//	{
-//		condition = 0;
-//		input[0] = 1;
-//		input[1] = 1;
-//		condition |= learn_one_value(input, lenght, 1);
-//		input[0] = 0;
-//		input[1] = 1;
-//		condition |= learn_one_value(input, lenght, 0);
-//		input[0] = 1;
-//		input[1] = 0;
-//		condition |= learn_one_value(input, lenght, 0);
-//		input[0] = 0;
-//		input[1] = 0;
-//		condition |= learn_one_value(input, lenght, 0);
-//	}while(condition == 1);
-//
-//	for(int i = 0; i < 3; ++i)
-//	{
-//		printf("%E\n", lenght[i]);
-//	}
-//}
-
-void test_neral(neural neural_test, float *a, float *b)
-{
-	(*a) = 1;
-	(*b) = 1;
-	neural_set_value_to_not_calculate(&neural_test);
-	neural_update_output(&neural_test);
-	printf("%.0f\t%0.f\t=>  %.0f \n", (*a), (*b), neural_test.out_value);
-	(*a) = 0;
-	(*b) = 1;
-	neural_set_value_to_not_calculate(&neural_test);
-	neural_update_output(&neural_test);
-	printf("%.0f\t%0.f\t=>  %.0f \n", (*a), (*b), neural_test.out_value);
-	(*a) = 1;
-	(*b) = 0;
-	neural_set_value_to_not_calculate(&neural_test);
-	neural_update_output(&neural_test);
-	printf("%.0f\t%0.f\t=>  %.0f \n", (*a), (*b), neural_test.out_value);
-	(*a) = 0;
-	(*b) = 0;
-	neural_set_value_to_not_calculate(&neural_test);
-	neural_update_output(&neural_test);
-	printf("%.0f\t%0.f\t=>  %.0f \n---------------------\n", (*a), (*b), neural_test.out_value);
-	//usleep(200000);
-}
 
 int main(int argc, char **argv)
 {
-	neural and_neural;
-	neural xor_nerals[3];
-	float a, b;
-	bool test;
-	int i, u;
+	int i, u, y, w;
+	int start_time;
+	neural **all_neral;
+	float echantillon[512] = {0};
+	neural layer1[1];
+	neural layer2[2];
+	neural layer3[4];
+	neural layer4[8];
+	neural layer5[16];
+	neural layer6[32];
+	neural layer7[64];
+	neural layer8[128];
+	neural layer9[256];
+	neural layer10[512];
+
+	neural *layer[10];
+
 	int seed = time(NULL);
 	if (argc > 1)
 	{
-		sscanf(argv[1], "%d", &seed);
+		   sscanf(argv[1], "%d", &seed);
 	}
 	srand(seed);
 	printf("seed : %d\n", seed);
-	initialise_neural(&and_neural, ((float)rand())/RAND_MAX);
-	neural_new_sensor_connection(&and_neural, &a, ((float)rand())/RAND_MAX);
-	neural_new_sensor_connection(&and_neural, &b, ((float)rand())/RAND_MAX);
-	do
-	{
-		test = true;
-		a = 0;
-		b = 0;
-		neural_set_value_to_not_calculate(&and_neural);
-		neural_update_output(&and_neural);
-		while(and_neural.out_value > 0.5)
-		{
-			test = false;
-			and_neural.out_error = -and_neural.out_value;
-			neural_set_error_to_not_calculate(&and_neural);
-			neural_update_weigh(&and_neural);
-			neural_set_value_to_not_calculate(&and_neural);
-			neural_update_output(&and_neural);
-		}
-		a = 0;
-		b = 1;
-		neural_set_value_to_not_calculate(&and_neural);
-		neural_update_output(&and_neural);
-		while(and_neural.out_value > 0.5)
-		{
-			test = false;
-			and_neural.out_error = - and_neural.out_value;
-			neural_set_error_to_not_calculate(&and_neural);
-			neural_update_weigh(&and_neural);
-			neural_set_value_to_not_calculate(&and_neural);
-			neural_update_output(&and_neural);
-		}
-		a = 1;
-		b = 0;
-		neural_set_value_to_not_calculate(&and_neural);
-		neural_update_output(&and_neural);
-		while(and_neural.out_value > 0.5)
-		{
-			test = false;
-			and_neural.out_error = -and_neural.out_value;
-			neural_set_error_to_not_calculate(&and_neural);
-			neural_update_weigh(&and_neural);
-			neural_set_value_to_not_calculate(&and_neural);
-			neural_update_output(&and_neural);
-		}
-		a = 1;
-		b = 1;
-		neural_set_value_to_not_calculate(&and_neural);
-		neural_update_output(&and_neural);
-		while(and_neural.out_value < 0.5)
-		{
-			test = false;
-			and_neural.out_error = 1 - and_neural.out_value;
-			neural_set_error_to_not_calculate(&and_neural);
-			neural_update_weigh(&and_neural);
-			neural_set_value_to_not_calculate(&and_neural);
-			neural_update_output(&and_neural);
-		}
 
-		//test_neral(and_neural, &a, &b);
-	}while( !test);
-	test_neral(and_neural, &a, &b);
-	printf("end of learning and function\n");
-//	 en of and neral
+	layer[0] = layer1;
+	layer[1] = layer2;
+	layer[2] = layer3;
+	layer[3] = layer4;
+	layer[4] = layer5;
+	layer[5] = layer6;
+	layer[6] = layer7;
+	layer[7] = layer8;
+	layer[8] = layer9;
+	layer[9] = layer10;
 
-	for (i = 0; i < 3; ++i)
+	for (i = 0; i < 10; ++i)
 	{
-		initialise_neural(&xor_nerals[i], ((float)rand())/RAND_MAX);
-	}
-	printf("end of initialyse nerals\n");
-	neural_new_sensor_connection(&xor_nerals[0], &a, ((float)rand())/RAND_MAX);
-	neural_new_sensor_connection(&xor_nerals[0], &b, ((float)rand())/RAND_MAX);
-	neural_new_sensor_connection(&xor_nerals[1], &a, ((float)rand())/RAND_MAX);
-	neural_new_sensor_connection(&xor_nerals[1], &b, ((float)rand())/RAND_MAX);
-	neural_new_synapse(&xor_nerals[0],&xor_nerals[2], ((float)rand())/RAND_MAX);
-	neural_new_synapse(&xor_nerals[1],&xor_nerals[2], ((float)rand())/RAND_MAX);
-	do
-	{
-		test = true;
-		a = 0;
-		b = 0;
-		for (i = 0; i < 3; ++i)
+		for (u = 0; u < pow(2,i) - 1; ++u)
 		{
-			neural_set_value_to_not_calculate(&xor_nerals[i]);
-		}
-		neural_update_output(&xor_nerals[2]);
-		while(xor_nerals[2].out_value > 0.5)
-		{
-			test = false;
-			xor_nerals[2].out_error =  - xor_nerals[2].out_value;
-			for (i = 0; i < 3; ++i)
+			if (i == 0)
 			{
-				neural_set_error_to_not_calculate(&xor_nerals[i]);
+				initialise_neural(&layer[i][u], rand() / RAND_MAX, tang, d_tang);
 			}
-			neural_update_weigh(&xor_nerals[0]);
-			neural_update_weigh(&xor_nerals[1]);
-			for (i = 0; i < 3; ++i)
+			else
 			{
-				neural_set_value_to_not_calculate(&xor_nerals[i]);
+				initialise_neural(&layer[i][u], rand() / RAND_MAX, sigmoid, d_sigmoid);
 			}
-			neural_update_output(&xor_nerals[2]);
 		}
-		a = 0;
-		b = 1;
-		for (i = 0; i < 3; ++i)
+		printf("%d \t", i);
+		printf("%9d", u);
+		printf("\n");
+	}
+	for (u = 0; u < 512; ++u)
+	{
+		if(layer10[i].in_table_size != 1)
 		{
-			neural_set_value_to_not_calculate(&xor_nerals[i]);
+			fprintf(stderr, "error");
 		}
-		neural_update_output(&xor_nerals[2]);
-		while(xor_nerals[2].out_value < 0.5)
+	}
+	for (i = 0; i < 9; ++i)
+	{
+		for (u = 0; u < pow(2,i) - 1; ++u)
 		{
-			test = false;
-			xor_nerals[2].out_error = 1 -xor_nerals[2].out_value;
-			for (i = 0; i < 3; ++i)
+			for (y = 0; y < pow(2,i + 1) - 1; ++y)
 			{
-				neural_set_error_to_not_calculate(&xor_nerals[i]);
+					neural_new_synapse(&layer[i + 1][y], &layer[i][u], rand() / RAND_MAX);
 			}
-			neural_update_weigh(&xor_nerals[0]);
-			neural_update_weigh(&xor_nerals[1]);
-			for (i = 0; i < 3; ++i)
+		}
+	}
+	for (i = 0; i < 512; ++i)
+	{
+		neural_new_sensor_connection(&layer10[i], &echantillon[i], rand() / RAND_MAX);
+	}
+	all_neral = malloc(1023 * sizeof(neural*));
+	if (all_neral == NULL)
+	{
+		fprintf(stderr, "malloc error");
+		exit(EXIT_FAILURE);
+	}
+	i=0;
+	for (u = 0; u < 10; ++u)
+	{
+		for (y = 0; y < pow(2, u) - 1; ++y)
+		{
+			++ i;
+			all_neral[i] = &layer[u][y];
+		}
+	}
+//	restor_weight(1023,)
+	start_time = time(NULL);
+	w = 0;
+	for (w = 0; w < 100; ++w)
+	{
+		for (i = 0; i < 1; ++i)//4764 - (512 + 1); ++i)
+		{
+			for (u = 0; u < 10; ++u)
 			{
-				neural_set_value_to_not_calculate(&xor_nerals[i]);
+				for (y = 0; y < pow(2, u) - 1; ++y)
+				{
+					neural_set_error_to_not_calculate(&layer[u][y]);
+					neural_set_value_to_not_calculate(&layer[u][y]);
+					neural_set_weight_to_not_calculate(&layer[u][y]);
+				}
 			}
-			neural_update_output(&xor_nerals[2]);
-		}
-		a = 1;
-		b = 0;
-		for (i = 0; i < 3; ++i)
-		{
-			neural_set_value_to_not_calculate(&xor_nerals[i]);
-		}
-		neural_update_output(&xor_nerals[2]);
-		while(xor_nerals[2].out_value < 0.5)
-		{
-			test = false;
-			xor_nerals[2].out_error = 1 - xor_nerals[2].out_value;
-			for (i = 0; i < 3; ++i)
+			for (u = 0; u < 512; ++u)
 			{
-				neural_set_error_to_not_calculate(&xor_nerals[i]);
+				echantillon[u] = entrainement[u + i][1];
 			}
-			neural_update_weigh(&xor_nerals[0]);
-			neural_update_weigh(&xor_nerals[1]);
-			for (i = 0; i < 3; ++i)
+			neural_update_output(layer1);
+			layer1[0].out_error = entrainement[512 + i + 1][1] - layer1[0].out_value;
+			for (int u = 0; u < 512; ++u)
 			{
-				neural_set_value_to_not_calculate(&xor_nerals[i]);
+				neural_update_weigh(&layer10[u]);
 			}
-			neural_update_output(&xor_nerals[2]);
-		}
-		a = 1;
-		b = 1;
-		for (i = 0; i < 3; ++i)
-		{
-			neural_set_value_to_not_calculate(&xor_nerals[i]);
-		}
-		neural_update_output(&xor_nerals[2]);
-		while(xor_nerals[2].out_value > 0.5)
-		{
-			test = false;
-			xor_nerals[2].out_error = -xor_nerals[2].out_value;
-			for (i = 0; i < 3; ++i)
+			if( i == 0 )
 			{
-				neural_set_error_to_not_calculate(&xor_nerals[i]);
+				printf("learn one value time = %ld\n", time(NULL) - start_time);
+				start_time = time(NULL);
 			}
-			neural_update_weigh(&xor_nerals[0]);
-			neural_update_weigh(&xor_nerals[1]);
-			for (i = 0; i < 3; ++i)
+		}
+	}
+	for (i = 0; i < 4764 - (512 + 1); ++i)
+	{
+		for (u = 0; u < 10; ++u)
+		{
+			for (y = 0; y < pow(2, u) - 1; ++y)
 			{
-				neural_set_value_to_not_calculate(&xor_nerals[i]);
+				neural_set_value_to_not_calculate(&layer[u][y]);
 			}
-			neural_update_output(&xor_nerals[2]);
 		}
-	}while( !test );
-	a = 1;
-	b = 1;
-	for (i = 0; i < 3; ++i)
-	{
-		neural_set_value_to_not_calculate(&xor_nerals[i]);
-	}
-	neural_update_output(&xor_nerals[2]);
-	printf("test a=%f, b=%f, out = %.0f\t", a, b, xor_nerals[2].out_value);
-	for (int i = 0; i < 3; ++i)
-	{
-//			printf("%5f|", xor_nerals[i].out_error);
-		for (int u = 0; u < xor_nerals[i].in_table_size; ++u)
+		for (u = 0; u < 512; ++u)
 		{
-			printf("%5f|", *(xor_nerals[i].in_value_table[u]));
+			echantillon[u] = entrainement[u + i][1];
 		}
-		printf("|");
+		neural_update_output(layer1);
+		layer1[0].out_error = entrainement[512 + i + 1][1] - layer1[0].out_value;
+		printf("error = %lf\n", layer1[0].out_error);
 	}
-	printf("\t%5f|\n", xor_nerals[2].out_value);
-	a = 0;
-	b = 1;
-	for (i = 0; i < 3; ++i)
-	{
-		neural_set_value_to_not_calculate(&xor_nerals[i]);
-	}
-	neural_update_output(&xor_nerals[2]);
-	printf("test a=%f, b=%f, out = %.0f\t", a, b, xor_nerals[2].out_value);
-	for (int i = 0; i < 3; ++i)
-	{
-//			printf("%5f|", xor_nerals[i].out_error);
-		for (int u = 0; u < xor_nerals[i].in_table_size; ++u)
-		{
-			printf("%5f|", *(xor_nerals[i].in_value_table[u]));
-		}
-		printf("|");
-	}
-	printf("\t%5f|\n", xor_nerals[2].out_value);
-	a = 1;
-	b = 0;
-	for (i = 0; i < 3; ++i)
-	{
-		neural_set_value_to_not_calculate(&xor_nerals[i]);
-	}
-	neural_update_output(&xor_nerals[2]);
-	printf("test a=%f, b=%f, out = %.0f\t", a, b, xor_nerals[2].out_value);
-	for (int i = 0; i < 3; ++i)
-	{
-//			printf("%5f|", xor_nerals[i].out_error);
-		for (int u = 0; u < xor_nerals[i].in_table_size; ++u)
-		{
-			printf("%5f|", *(xor_nerals[i].in_value_table[u]));
-		}
-		printf("|");
-	}
-	printf("\t%5f|\n", xor_nerals[2].out_value);
-	a = 0;
-	b = 0;
-	for (i = 0; i < 3; ++i)
-	{
-		neural_set_value_to_not_calculate(&xor_nerals[i]);
-	}
-	neural_update_output(&xor_nerals[2]);
-	printf("test a=%f, b=%f, out = %.0f\t", a, b, xor_nerals[2].out_value);
-	for (int i = 0; i < 3; ++i)
-	{
-//			printf("%5f|", xor_nerals[i].out_error);
-		for (int u = 0; u < xor_nerals[i].in_table_size; ++u)
-		{
-			printf("%5f|", *(xor_nerals[i].in_value_table[u]));
-		}
-		printf("|");
-	}
-	printf("\t%5f|\n", xor_nerals[2].out_value);
+	 save_weight(1023, all_neral, "weight");
+
+	free(all_neral);
 	return 0;
 }

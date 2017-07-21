@@ -22,3 +22,13 @@ float d_tanh(float x)
 	float tanh_x = tanhf(x);
 	return - tanh_x * tanh_x + 1;
 }
+
+float tang(float x)
+{
+	return (2 * x)/(x * x -1);
+}
+
+float d_tang(float x)
+{
+	return ((-2) * x * x - 2)/(x * x * x * x - 2 * x * x + 1);
+}

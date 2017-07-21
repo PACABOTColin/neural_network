@@ -4,14 +4,14 @@
 #include <stdlib.h>
 #include "toolbox.h"
 const float Biais = 1.0;
-/* add this bloc to the function for use
-void initialise_neural(float *(function)(float), float *(d_function)(float), struct neural *new_neural)
+/* add this bloc to the function for use */
+void initialise_neural(struct neural *new_neural, float biais_coef, float (*function)(float), float (*d_function)(float))
 {
 
  	new_neural->rv_function = function;
- 	new_neural->d_rv_function = d_function;*/
-void initialise_neural(neural *new_neural, float biais_coef)
-{
+ 	new_neural->d_rv_function = d_function;
+//void initialise_neural(neural *new_neural, float biais_coef)
+//{
  	new_neural->in_table_size = 0;
  	new_neural->in_value_table=NULL;
  	new_neural->coef_table = NULL;
@@ -98,8 +98,8 @@ void neural_calculate_gradian(neural *current_neural)
 				sum += current_neural->coef_table[i] * (*(current_neural->in_value_table[i]));
 			}
 			current_neural->out_error = sum;
-		//	rv *= current_neural->d_rv_function(sum); // uncomment this line if you whant use different neural transfer function
-			rv *= d_sigmoid(sum);
+			rv *= current_neural->d_rv_function(sum); // uncomment this line if you whant use different neural transfer function
+//			rv *= d_sigmoid(sum);
 			current_neural->gradian = rv;
 		}
 		else
@@ -115,16 +115,20 @@ void neural_calculate_gradian(neural *current_neural)
 
 void neural_update_weigh(neural *current_neural)
 {
-	for (int i = 0; i < current_neural->in_table_size; ++i)
+	if (current_neural->weight_calculated == false)
 	{
-		neural_calculate_gradian(current_neural);
-		current_neural->coef_table[i] += NU * current_neural->gradian * *(current_neural->in_value_table[i]);
-	}
-	for (int i = 0; i < current_neural->out_table_size; ++i)
-	{
-		if(current_neural->out_neural_table != NULL && current_neural->out_neural_table[i] != NULL)
+		current_neural->weight_calculated = true;
+		for (int i = 0; i < current_neural->in_table_size; ++i)
 		{
-			neural_update_weigh(current_neural->out_neural_table[i]);
+			neural_calculate_gradian(current_neural);
+			current_neural->coef_table[i] += NU * current_neural->gradian * *(current_neural->in_value_table[i]);
+		}
+		for (int i = 0; i < current_neural->out_table_size; ++i)
+		{
+			if(current_neural->out_neural_table != NULL && current_neural->out_neural_table[i] != NULL)
+			{
+				neural_update_weigh(current_neural->out_neural_table[i]);
+			}
 		}
 	}
 }
@@ -143,7 +147,7 @@ void neural_update_output(neural *current_neural)
 			}
 			current_neural->out_value += *(current_neural->in_value_table[i]) * current_neural->coef_table[i];
 		}
-		current_neural->out_value = sigmoid(current_neural->out_value);
+		current_neural->out_value = current_neural->rv_function(current_neural->out_value);//sigmoid(current_neural->out_value);
 	}
 }
 
@@ -155,4 +159,8 @@ void neural_set_value_to_not_calculate(neural *current_neural)
 void neural_set_error_to_not_calculate(neural *current_neural)
 {
 	current_neural->error_calculated = false;
+}
+void neural_set_weight_to_not_calculate(neural *current_neural)
+{
+	current_neural->weight_calculated = false;
 }
