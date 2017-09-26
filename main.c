@@ -3,157 +3,483 @@
 #include <time.h>
 #include <unistd.h>
 #include <math.h>
+#include <string.h>
 
 #include "neural.h"
 #include "toolbox.h"
 #include "file.h"
 
-extern float entrainement [4764][2];
+#define training_size (928682)
 
+extern float training[training_size];
+
+#define nombre_couche (1)
+#define network_size (sum_suite_al(nombre_couche))
+#define sum_suite_al(n) ((n)*((n)+1)/2)
+
+void test_neral(neural neural_test, float *a, float *b)
+{
+	(*a) = 1;
+	(*b) = 1;
+	neural_set_value_to_not_calculate(&neural_test);
+	neural_update_output(&neural_test);
+	printf("%.0f\t%0.f\t=>  %.0f \n", (*a), (*b), neural_test.out_value);
+	(*a) = 0;
+	(*b) = 1;
+	neural_set_value_to_not_calculate(&neural_test);
+	neural_update_output(&neural_test);
+	printf("%.0f\t%0.f\t=>  %.0f \n", (*a), (*b), neural_test.out_value);
+	(*a) = 1;
+	(*b) = 0;
+	neural_set_value_to_not_calculate(&neural_test);
+	neural_update_output(&neural_test);
+	printf("%.0f\t%0.f\t=>  %.0f \n", (*a), (*b), neural_test.out_value);
+	(*a) = 0;
+	(*b) = 0;
+	neural_set_value_to_not_calculate(&neural_test);
+	neural_update_output(&neural_test);
+	printf("%.0f\t%0.f\t=>  %.0f \n---------------------\n", (*a), (*b),
+		   neural_test.out_value);
+	// usleep(200000);
+}
 
 int main(int argc, char **argv)
 {
-	int i, u, y, w;
-	int start_time;
-	neural **all_neral;
-	float echantillon[512] = {0};
-	neural layer1[1];
-	neural layer2[2];
-	neural layer3[4];
-	neural layer4[8];
-	neural layer5[16];
-	neural layer6[32];
-	neural layer7[64];
-	neural layer8[128];
-	neural layer9[256];
-	neural layer10[512];
-
-	neural *layer[10];
-
+	neural and_neural;
+	neural xor_nerals[3];
+	float a, b;
+	bool test;
+	int i, u;
 	int seed = time(NULL);
+
 	if (argc > 1)
 	{
-		   sscanf(argv[1], "%d", &seed);
+		sscanf(argv[1], "%d", &seed);
 	}
 	srand(seed);
 	printf("seed : %d\n", seed);
+	initialise_neural(&and_neural, ((float)rand()) / RAND_MAX, sigmoid,
+					  d_sigmoid, 0);
+	neural_new_sensor_connection(&and_neural, &a, ((float)rand()) / RAND_MAX);
+	neural_new_sensor_connection(&and_neural, &b, ((float)rand()) / RAND_MAX);
+	 do
+	 {
+	 test = true;
+	 a = 0;
+	 b = 0;
+	 neural_set_value_to_not_calculate (&and_neural);
+	 neural_update_output (&and_neural);
+	 while (and_neural.out_value > 0.5)
+	 {
+	 test = false;
+	 and_neural.out_error = -and_neural.out_value;
+	 neural_set_error_to_not_calculate (&and_neural);
+	 neural_set_weight_to_not_calculate (&and_neural);
+	 neural_set_value_to_not_calculate (&and_neural);
+	 neural_update_weigh (&and_neural);
+	 neural_update_output (&and_neural);
+	 }
+	 a = 0;
+	 b = 1;
+	 neural_set_value_to_not_calculate (&and_neural);
+	 neural_update_output (&and_neural);
+	 while (and_neural.out_value > 0.5)
+	 {
+	 test = false;
+	 and_neural.out_error = -and_neural.out_value;
+	 neural_set_error_to_not_calculate (&and_neural);
+	 neural_set_weight_to_not_calculate (&and_neural);
+	 neural_set_value_to_not_calculate (&and_neural);
+	 neural_update_weigh (&and_neural);
+	 neural_update_output (&and_neural);
+	 }
+	 a = 1;
+	 b = 0;
+	 neural_set_value_to_not_calculate (&and_neural);
+	 neural_update_output (&and_neural);
+	 while (and_neural.out_value > 0.5)
+	 {
+	 test = false;
+	 and_neural.out_error = -and_neural.out_value;
+	 neural_set_error_to_not_calculate (&and_neural);
+	 neural_set_weight_to_not_calculate (&and_neural);
+	 neural_set_value_to_not_calculate (&and_neural);
+	 neural_update_weigh (&and_neural);
+	 neural_update_output (&and_neural);
+	 }
+	 a = 1;
+	 b = 1;
+	 neural_set_value_to_not_calculate (&and_neural);
+	 neural_update_output (&and_neural);
+	 while (and_neural.out_value < 0.5)
+	 {
+	 test = false;
+	 and_neural.out_error = 1 - and_neural.out_value;
+	 neural_set_error_to_not_calculate (&and_neural);
+	 neural_set_weight_to_not_calculate (&and_neural);
+	 neural_set_value_to_not_calculate (&and_neural);
+	 neural_update_weigh (&and_neural);
+	 neural_update_output (&and_neural);
+	 }
 
-	layer[0] = layer1;
-	layer[1] = layer2;
-	layer[2] = layer3;
-	layer[3] = layer4;
-	layer[4] = layer5;
-	layer[5] = layer6;
-	layer[6] = layer7;
-	layer[7] = layer8;
-	layer[8] = layer9;
-	layer[9] = layer10;
+	 //test_neral(and_neural, &a, &b);
+	 }
+	 while (!test);
+	 test_neral (and_neural, &a, &b);
+	 printf ("end of learning and function\n");
+	 // en of and neral
+	 sleep (3);
 
-	for (i = 0; i < 10; ++i)
+	for (i = 0; i < 3; ++i)
 	{
-		for (u = 0; u < pow(2,i) - 1; ++u)
+		initialise_neural(&xor_nerals[i], ((float)rand()) / RAND_MAX,
+						  sigmoid, d_sigmoid, i + 1);
+	}
+	neural_new_sensor_connection(&xor_nerals[0], &a, ((float)rand()) / RAND_MAX);
+	neural_new_sensor_connection(&xor_nerals[0], &b, ((float)rand()) / RAND_MAX);
+	neural_new_sensor_connection(&xor_nerals[1], &a, ((float)rand()) / RAND_MAX);
+	neural_new_sensor_connection(&xor_nerals[1], &b, ((float)rand()) / RAND_MAX);
+	neural_new_synapse(&xor_nerals[0], &xor_nerals[2], ((float)rand()) / RAND_MAX);
+	neural_new_synapse(&xor_nerals[1], &xor_nerals[2], ((float)rand()) / RAND_MAX);
+	do
+	{
+		test = true;
+		a = 0;
+		b = 0;
+		for (i = 0; i < 3; ++i)
 		{
-			if (i == 0)
-			{
-				initialise_neural(&layer[i][u], rand() / RAND_MAX, tang, d_tang);
-			}
-			else
-			{
-				initialise_neural(&layer[i][u], rand() / RAND_MAX, sigmoid, d_sigmoid);
-			}
+			neural_set_error_to_not_calculate(&xor_nerals[i]);
+			neural_set_weight_to_not_calculate(&xor_nerals[i]);
+			neural_set_value_to_not_calculate(&xor_nerals[i]);
 		}
-		printf("%d \t", i);
-		printf("%9d", u);
+		neural_update_output(&xor_nerals[2]);
+		while (xor_nerals[2].out_value > 0.5)
+		{
+			test = false;
+			xor_nerals[2].out_error = -xor_nerals[2].out_value;
+			for (i = 0; i < 3; ++i)
+			{
+				neural_set_error_to_not_calculate(&xor_nerals[i]);
+				neural_set_weight_to_not_calculate(&xor_nerals[i]);
+				neural_set_value_to_not_calculate(&xor_nerals[i]);
+			}
+			neural_update_weigh(&xor_nerals[0]);
+			neural_update_weigh(&xor_nerals[1]);
+			for (i = 0; i < 3; ++i)
+			{
+				neural_set_error_to_not_calculate(&xor_nerals[i]);
+				neural_set_weight_to_not_calculate(&xor_nerals[i]);
+				neural_set_value_to_not_calculate(&xor_nerals[i]);
+			}
+			neural_update_output(&xor_nerals[2]);
+		}
+		a = 0;
+		b = 1;
+		for (i = 0; i < 3; ++i)
+		{
+			neural_set_error_to_not_calculate(&xor_nerals[i]);
+			neural_set_weight_to_not_calculate(&xor_nerals[i]);
+			neural_set_value_to_not_calculate(&xor_nerals[i]);
+		}
+		neural_update_output(&xor_nerals[2]);
+		while (xor_nerals[2].out_value < 0.5)
+		{
+			test = false;
+			xor_nerals[2].out_error = 1 - xor_nerals[2].out_value;
+			for (i = 0; i < 3; ++i)
+			{
+				neural_set_error_to_not_calculate(&xor_nerals[i]);
+				neural_set_weight_to_not_calculate(&xor_nerals[i]);
+				neural_set_value_to_not_calculate(&xor_nerals[i]);
+			}
+			neural_update_weigh(&xor_nerals[0]);
+			neural_update_weigh(&xor_nerals[1]);
+			for (i = 0; i < 3; ++i)
+			{
+				neural_set_error_to_not_calculate(&xor_nerals[i]);
+				neural_set_weight_to_not_calculate(&xor_nerals[i]);
+				neural_set_value_to_not_calculate(&xor_nerals[i]);
+			}
+			neural_update_output(&xor_nerals[2]);
+		}
+		a = 1;
+		b = 0;
+		for (i = 0; i < 3; ++i)
+		{
+			neural_set_error_to_not_calculate(&xor_nerals[i]);
+			neural_set_weight_to_not_calculate(&xor_nerals[i]);
+			neural_set_value_to_not_calculate(&xor_nerals[i]);
+		}
+		neural_update_output(&xor_nerals[2]);
+		while (xor_nerals[2].out_value < 0.5)
+		{
+			test = false;
+			xor_nerals[2].out_error = 1 - xor_nerals[2].out_value;
+			for (i = 0; i < 3; ++i)
+			{
+				neural_set_error_to_not_calculate(&xor_nerals[i]);
+				neural_set_weight_to_not_calculate(&xor_nerals[i]);
+				neural_set_value_to_not_calculate(&xor_nerals[i]);
+			}
+			neural_update_weigh(&xor_nerals[0]);
+			neural_update_weigh(&xor_nerals[1]);
+			for (i = 0; i < 3; ++i)
+			{
+				neural_set_error_to_not_calculate(&xor_nerals[i]);
+				neural_set_weight_to_not_calculate(&xor_nerals[i]);
+				neural_set_value_to_not_calculate(&xor_nerals[i]);
+			}
+			neural_update_output(&xor_nerals[2]);
+		}
+		a = 1;
+		b = 1;
+		for (i = 0; i < 3; ++i)
+		{
+			neural_set_error_to_not_calculate(&xor_nerals[i]);
+			neural_set_weight_to_not_calculate(&xor_nerals[i]);
+			neural_set_value_to_not_calculate(&xor_nerals[i]);
+		}
+		neural_update_output(&xor_nerals[2]);
+		while (xor_nerals[2].out_value > 0.5)
+		{
+			test = false;
+			xor_nerals[2].out_error = -xor_nerals[2].out_value;
+			for (i = 0; i < 3; ++i)
+			{
+				neural_set_error_to_not_calculate(&xor_nerals[i]);
+				neural_set_weight_to_not_calculate(&xor_nerals[i]);
+				neural_set_value_to_not_calculate(&xor_nerals[i]);
+			}
+			neural_update_weigh(&xor_nerals[0]);
+			neural_update_weigh(&xor_nerals[1]);
+			for (i = 0; i < 3; ++i)
+			{
+				neural_set_error_to_not_calculate(&xor_nerals[i]);
+				neural_set_weight_to_not_calculate(&xor_nerals[i]);
+				neural_set_value_to_not_calculate(&xor_nerals[i]);
+			}
+			neural_update_output(&xor_nerals[2]);
+		}
+		for (i = 0; i < 3; ++i)
+		{
+			for (u = 1; u < xor_nerals[i].in_table_size; ++u)
+			{
+				printf("%8f,", xor_nerals[i].coef_table[u]);
+			}
+			printf("|");
+		}
 		printf("\n");
 	}
-	for (u = 0; u < 512; ++u)
-	{
-		if(layer10[i].in_table_size != 1)
-		{
-			fprintf(stderr, "error");
-		}
-	}
-	for (i = 0; i < 9; ++i)
-	{
-		for (u = 0; u < pow(2,i) - 1; ++u)
-		{
-			for (y = 0; y < pow(2,i + 1) - 1; ++y)
-			{
-					neural_new_synapse(&layer[i + 1][y], &layer[i][u], rand() / RAND_MAX);
-			}
-		}
-	}
-	for (i = 0; i < 512; ++i)
-	{
-		neural_new_sensor_connection(&layer10[i], &echantillon[i], rand() / RAND_MAX);
-	}
-	all_neral = malloc(1023 * sizeof(neural*));
-	if (all_neral == NULL)
-	{
-		fprintf(stderr, "malloc error");
-		exit(EXIT_FAILURE);
-	}
-	i=0;
-	for (u = 0; u < 10; ++u)
-	{
-		for (y = 0; y < pow(2, u) - 1; ++y)
-		{
-			++ i;
-			all_neral[i] = &layer[u][y];
-		}
-	}
-//	restor_weight(1023,)
-	start_time = time(NULL);
-	w = 0;
-	for (w = 0; w < 100; ++w)
-	{
-		for (i = 0; i < 1; ++i)//4764 - (512 + 1); ++i)
-		{
-			for (u = 0; u < 10; ++u)
-			{
-				for (y = 0; y < pow(2, u) - 1; ++y)
-				{
-					neural_set_error_to_not_calculate(&layer[u][y]);
-					neural_set_value_to_not_calculate(&layer[u][y]);
-					neural_set_weight_to_not_calculate(&layer[u][y]);
-				}
-			}
-			for (u = 0; u < 512; ++u)
-			{
-				echantillon[u] = entrainement[u + i][1];
-			}
-			neural_update_output(layer1);
-			layer1[0].out_error = entrainement[512 + i + 1][1] - layer1[0].out_value;
-			for (int u = 0; u < 512; ++u)
-			{
-				neural_update_weigh(&layer10[u]);
-			}
-			if( i == 0 )
-			{
-				printf("learn one value time = %ld\n", time(NULL) - start_time);
-				start_time = time(NULL);
-			}
-		}
-	}
-	for (i = 0; i < 4764 - (512 + 1); ++i)
-	{
-		for (u = 0; u < 10; ++u)
-		{
-			for (y = 0; y < pow(2, u) - 1; ++y)
-			{
-				neural_set_value_to_not_calculate(&layer[u][y]);
-			}
-		}
-		for (u = 0; u < 512; ++u)
-		{
-			echantillon[u] = entrainement[u + i][1];
-		}
-		neural_update_output(layer1);
-		layer1[0].out_error = entrainement[512 + i + 1][1] - layer1[0].out_value;
-		printf("error = %lf\n", layer1[0].out_error);
-	}
-	 save_weight(1023, all_neral, "weight");
+	while (!test);
 
-	free(all_neral);
+	a = 1;
+	b = 1;
+	for (i = 0; i < 3; ++i)
+	{
+		neural_set_error_to_not_calculate(&xor_nerals[i]);
+		neural_set_weight_to_not_calculate(&xor_nerals[i]);
+		neural_set_value_to_not_calculate(&xor_nerals[i]);
+	}
+	neural_update_output(&xor_nerals[2]);
+	printf("test a=%f, b=%f, out = %f\n", a, b, xor_nerals[2].out_value);
+	a = 0;
+	b = 1;
+	for (i = 0; i < 3; ++i)
+	{
+		neural_set_error_to_not_calculate(&xor_nerals[i]);
+		neural_set_weight_to_not_calculate(&xor_nerals[i]);
+		neural_set_value_to_not_calculate(&xor_nerals[i]);
+	}
+	neural_update_output(&xor_nerals[2]);
+	printf("test a=%f, b=%f, out = %f\n", a, b, xor_nerals[2].out_value);
+	a = 1;
+	b = 0;
+	for (i = 0; i < 3; ++i)
+	{
+		neural_set_error_to_not_calculate(&xor_nerals[i]);
+		neural_set_weight_to_not_calculate(&xor_nerals[i]);
+		neural_set_value_to_not_calculate(&xor_nerals[i]);
+	}
+	neural_update_output(&xor_nerals[2]);
+	printf("test a=%f, b=%f, out = %f\n", a, b, xor_nerals[2].out_value);
+	a = 0;
+	b = 0;
+	for (i = 0; i < 3; ++i)
+	{
+		neural_set_error_to_not_calculate(&xor_nerals[i]);
+		neural_set_weight_to_not_calculate(&xor_nerals[i]);
+		neural_set_value_to_not_calculate(&xor_nerals[i]);
+	}
+	neural_update_output(&xor_nerals[2]);
+	printf("test a=%f, b=%f, out = %f\n", a, b, xor_nerals[2].out_value);
+	return 0;
+
+	// float input [network_size]= {};
+	// int i, y = 0, sum;
+	// srand(time(NULL));
+	// neural *network;
+	// 
+	// for (i = 0; i < training_size; ++i) {
+	// training[i]= 80.20;
+	// }
+	// 
+	// network = malloc(sizeof(neural) * (network_size)); // alloc mem for
+	// neural network
+	// 
+	// for (i = 0; i < network_size; ++i) // init neurals
+	// {
+	// if (i == 0)
+	// {
+	// initialise_neural(&network[i], (float)rand() * 2.0/ RAND_MAX - 1, tang, 
+	// d_tang, i);
+	// }
+	// else
+	// {
+	// initialise_neural(&network[i], (float)rand() * 2.0/ RAND_MAX - 1,
+	// sigmoid, d_sigmoid, i);
+	// }
+	// }
+	// /*
+	// * initialyse all the neural connection
+	// * n 0
+	// * ---------------------+
+	// * o o o o o o o o ... o | n
+	// * \|\|\|\|\|\|\|\...\| |
+	// * o o o o o o o ... o | n-1
+	// * \|\|\|\|\|\|\...\| | n-2
+	// * o o o o o o ... o | n-3
+	// * \|\|\|\|\|\...\| |
+	// * o o o o o ... o |
+	// * \|\|\|\|\...\| |
+	// * o o o o ... o |
+	// * \|\|\|\...\| |
+	// * o o o ... o |
+	// * \|\|\...\| |
+	// * o o ... o |
+	// * \|\...\| |
+	// * o ... o |
+	// * \...\| |
+	// * : |
+	// * : |
+	// * o o | 1
+	// * \| |
+	// * o | 0
+	// */
+	// sum = 0;
+	// for (i = 0; i < nombre_couche - 1; ++i)
+	// {
+	// sum += i;
+	// for (y = 0; y <= i; ++y)
+	// {
+	// printf("sum = %3d\t i= %3d\t link : %2d %2d & %2d\n", sum, i, sum + y,
+	// sum + y + i + 1, sum + y + i + 2);
+	// neural_new_synapse(&network[sum + y + i + 1], &network[sum + y],
+	// (float)rand() * 2.0/ RAND_MAX - 1);
+	// neural_new_synapse(&network[sum + y + i + 2], &network[sum + y],
+	// (float)rand() * 2.0/ RAND_MAX - 1);
+	// 
+	// }
+	// }
+	// for (i = network_size - sum_suite_al(nombre_couche - 1); i <
+	// network_size; ++i)
+	// {
+	// neural_new_sensor_connection(&network[i], &input[i], (float)rand() *
+	// 2.0/ RAND_MAX - 1);
+	// }
+	// sum = 0;
+	// while(1)
+	// {
+	// for (i = 0; i < training_size - nombre_couche - 1; ++i)
+	// {
+	// memcpy(input, &training[i], sizeof(input));
+	// for (y = 0; y < network_size; ++y) {
+	// neural_set_error_to_not_calculate(&network[y]);
+	// neural_set_value_to_not_calculate(&network[y]);
+	// neural_set_weight_to_not_calculate(&network[y]);
+	// }
+	// neural_update_output(&network[0]);
+	// network[0].out_error = training[i + nombre_couche + 1] -
+	// network[0].out_value;
+	// printf("%3d out %f, error = %f\n", i, network[0].out_value,
+	// network[0].out_error);
+	// neural_update_weigh(&network[0]);
+	// }
+	// sleep(10);
+	// sum ++;
+	// }
+
+	// for(ii=0; ii < training_size - network_size; ++ii)
+	// {
+	// 
+	// do {
+	// blanc = 1;
+	// noir = 1;
+	// y=0;
+	// for (i = 0; i < network_size; ++i)
+	// {
+	// initialise_neural(&network[i],(float)rand() * 20.0/ RAND_MAX - 10,
+	// sigmoid, d_sigmoid);
+	// }
+	// for (u = 0; u < nombre_couche; ++u)
+	// {
+	// for (i = 0; i < nombre_neuronne_couche; ++i)
+	// {
+	// if(u == 0)
+	// {
+	// neural_new_sensor_connection(&network[i],&value1, );
+	// neural_new_sensor_connection(&network[i],&value2, (float)rand() * 2.0/
+	// RAND_MAX - 1);
+	// }
+	// else
+	// {
+	// for (y = 0; y < nombre_neuronne_couche; ++y)
+	// {
+	// neural_new_synapse(&network[(u - 1) * nombre_neuronne_couche + y],
+	// &network[u * nombre_neuronne_couche + i], (float)rand() * 2.0/ RAND_MAX 
+	// - 1);
+	// }
+	// }
+	// }
+	// }
+	// for (i = 0; i < nombre_neuronne_couche; ++i)
+	// {
+	// neural_new_synapse(&network[(nombre_couche -1) * nombre_neuronne_couche 
+	// + i], &network[network_size - 1], (float)rand() * 2.0/ RAND_MAX - 1);
+	// }
+	// for(i = 0; i < image.hauteurImage; ++ i)
+	// {
+	// for (u = 0; u < image.largeurImage; ++u)
+	// {
+	// value1 = map((float)i,0, image.hauteurImage, -120, 120);
+	// value2 = map((float)u,0, image.largeurImage, -120, 120);
+	// for (z = 0; z < network_size; ++z)
+	// {
+	// neural_set_value_to_not_calculate(&network[z]);
+	// }
+	// neural_update_output(&network[network_size - 1]);
+	// if(network[network_size - 1].out_value > 0)
+	// {
+	// blanc = 0;
+	// w = 255;
+	// }
+	// else
+	// {
+	// noir = 0;
+	// w = 0;
+	// }
+	// for (z = 0; z < 3; ++z)
+	// {
+	// image.donneesRGB[y]=w;
+	// ++y;
+	// }
+	// }
+	// }
+	// free(network);
+	// } while(blanc || noir);
+	// sprintf(str, "out%d.bmp", ii);
+	// printf("%s\n", str);
+	// ecrisBMPRGB_Dans(&image, str);
+	// }
+	// free(image.donneesRGB);
 	return 0;
 }

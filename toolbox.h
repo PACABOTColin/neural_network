@@ -8,6 +8,8 @@
 #ifndef TOOLBOX_H_
 #define TOOLBOX_H_
 
+#define map(in , in_min, in_max, out_min, out_max) (((in) - (in_min)) * ((out_max) - (out_min)) / ((in_max) - (in_min)) + (out_min))
+
 float sigmoid(float x);
 float d_sigmoid(float x);
 float tang(float x);
