@@ -7,7 +7,7 @@
 
 #define VERBOSE_NEW_CONNECTION
 //#define VERBOSE_UPDATE_WEIGH
-#define VERBOSE_UPDATE_OUTPUT
+//#define VERBOSE_UPDATE_OUTPUT
 
 /****end of debug define****/
 

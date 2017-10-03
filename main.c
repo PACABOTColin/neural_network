@@ -8,33 +8,25 @@
 #include "neural.h"
 #include "toolbox.h"
 #include "file.h"
-
-#define TRACE_DEEP 5000
-
-#define training_size (928682)
-
-extern float training[training_size];
-
-#define nombre_couche (4)
-#define network_size (sum_suite_al(nombre_couche))
-#define sum_suite_al(n) ((n)*((n)+1)/2)
+#include "config.h"
 
 int main(int argc, char **argv)
 {
+	int ids []={0, 10, 11, 20,21,22,30,31,32,33};
 	double error_avr = 0;
 	float input[nombre_couche + 1];
 	int i, y = 0, sum, z;
 	srand(time(NULL));
 	neural *network_temperature;
 	neural *network_temp_cetitude;
-
+	printf("pid : %d, network size : %d\n", getpid(), network_size);
 
 	network_temperature = malloc(sizeof(*network_temp_cetitude) * (network_size));	// alloc mem for all the neural network
 	network_temp_cetitude = malloc(sizeof(*network_temp_cetitude) * (network_size));	// alloc mem for all the neural network
 	for (i = 0; i < network_size; ++i)	// init neurons
 	{
-		initialise_neural(&network_temp_cetitude[i], (float)rand() * 2.0 / RAND_MAX - 1, sigmoid, d_sigmoid, 1000+i);
-		initialise_neural(&network_temperature[i], (float)rand() * 2.0 / RAND_MAX - 1, sigmoid, d_sigmoid, i);
+		initialise_neural(&network_temp_cetitude[i], (float)rand() * 2.0 / RAND_MAX - 1, sigmoid, d_sigmoid, 1000+ids[i]);
+		initialise_neural(&network_temperature[i], (float)rand() * 2.0 / RAND_MAX - 1, sigmoid, d_sigmoid, ids[i]);
 	}
 	/* 
 	 * initialyse all the neural connection
@@ -80,34 +72,32 @@ int main(int argc, char **argv)
 		neural_new_synapse(&network_temperature[i], &network_temp_cetitude[i],
 									   (float)rand() * 2.0 / RAND_MAX - 1);
 	}
-
-	for (i = network_size - nombre_couche - 1; i < network_size; ++i)
+	sum = 0;
+	for (i = network_size - nombre_couche; i < network_size; ++i)
 	{
 		/*** link temperature neurons ***/
-		neural_new_sensor_connection(&network_temperature[i], &input[i], (float)rand() *
+		neural_new_sensor_connection(&network_temperature[i], &input[sum], (float)rand() *
 									 2.0 / RAND_MAX - 1);
-		neural_new_sensor_connection(&network_temperature[i], &input[i + 1], (float)rand() *
+		neural_new_sensor_connection(&network_temperature[i], &input[sum + 1], (float)rand() *
 									 2.0 / RAND_MAX - 1);
 
 		/*** link temperature certitude neurons ***/
-		neural_new_sensor_connection(&network_temp_cetitude[i], &input[i], (float)rand() *
+		neural_new_sensor_connection(&network_temp_cetitude[i], &input[sum], (float)rand() *
 									 2.0 / RAND_MAX - 1);
-		neural_new_sensor_connection(&network_temp_cetitude[i], &input[i + 1], (float)rand() *
+		neural_new_sensor_connection(&network_temp_cetitude[i], &input[sum + 1], (float)rand() *
 									 2.0 / RAND_MAX - 1);
+		++sum;
 	}
 	sum = 0;
-	for (z = 0; z < 1; ++z)
+	for (z = 0; z < 100; ++z)
 	{
-//		for (i = 0; i < training_size - nombre_couche - 1; ++i)
-		for (i = 0; i < 1; ++i)
+		for (i = 0; i < training_size - nombre_couche - 1; ++i)
 		{
-			memcpy(input, &training[i], sizeof(input));
-			for (y = 0; y < network_size + 1; ++y)
+//			memcpy(input, &training[i], sizeof(input)); // understand whit this don't work;
+			for (y = 0; y < nombre_couche + 1; ++y)
 			{
 				input[y] = training[i + y];
-				printf("%f, ", input[i]);
 			}
-			printf("\n");
 			for (y = 0; y < network_size; ++y)
 			{
 				neural_set_error_to_not_calculate(&network_temperature[y]);

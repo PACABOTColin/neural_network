@@ -77,6 +77,7 @@ int neural_new_synapse(neural* father, neural* child, float coef)
 
 int neural_new_sensor_connection(neural* sensor_neural, float *value, float coef)
 {
+	printf("add neuw sensor connection : %d addresse input tab = %p \n", sensor_neural->friendly_id, value);
 	sensor_neural->in_table_size ++;
 	sensor_neural->in_value_table = realloc(sensor_neural->in_value_table, sizeof(float*) * sensor_neural->in_table_size);
 	sensor_neural->coef_table = realloc(sensor_neural->coef_table, sizeof(float) * sensor_neural->in_table_size);
@@ -175,6 +176,10 @@ void neural_update_output(neural *current_neural)
 #endif
 	if(current_neural->out_value_calculated == false) // if the value is not already calculated
 	{
+#ifdef VERBOSE_UPDATE_OUTPUT
+		for (y = 0; y < deep; ++y) {printf(" ");}
+		printf("neural : %d the weigh will be update\n", current_neural->friendly_id); // debug print
+#endif
 		current_neural->out_value_calculated = true;  // set the value to calculated
 		current_neural->out_value = 0; 					//reset the out value
 		for (i = 0; i < current_neural->in_table_size; ++i) // for all the input into the neural
@@ -183,8 +188,8 @@ void neural_update_output(neural *current_neural)
 			{
 				neural_update_output(current_neural->in_neural_table[i]); // update the output of the input neural
 			}
+
 			current_neural->out_value += *(current_neural->in_value_table[i]) * current_neural->coef_table[i]; // add the input value to the output value
-//			current_neural->out_value = 0;  //TODO:debug
 			if(isnan(current_neural->out_value)) // verify if there is not an error (should not be true)
 			{
 				printf("error in id : %d\n", current_neural->friendly_id);
@@ -193,20 +198,21 @@ void neural_update_output(neural *current_neural)
 
 #ifdef VERBOSE_UPDATE_OUTPUT
 		for (y = 0; y < deep; ++y) {printf(" ");}
-		printf("neural : %d l84\n", current_neural->friendly_id); // debug print
+		printf("neural : %d l196\n", current_neural->friendly_id); // debug print
 #endif
 		current_neural->out_value = current_neural->rv_function(current_neural->out_value); // put the out value into the transfert function
 		if(isnan(current_neural->out_value)) // verify if there is not an error (should not be true)
 		{
 			printf("error in id %d\n", current_neural->friendly_id);
 		}
-
 #ifdef VERBOSE_UPDATE_OUTPUT
 		for (y = 0; y < deep; ++y) {printf(" ");}
 		printf("the neural : %d done updated\n", current_neural->friendly_id); // debug print
 #endif
 	}
+#ifdef VERBOSE_UPDATE_OUTPUT
 	--deep;
+#endif
 }
 
 void neural_set_value_to_not_calculate(neural *current_neural)
