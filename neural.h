@@ -3,6 +3,14 @@
 
 #include <stdbool.h>
 
+/********debug define*******/
+
+#define VERBOSE_NEW_CONNECTION
+//#define VERBOSE_UPDATE_WEIGH
+#define VERBOSE_UPDATE_OUTPUT
+
+/****end of debug define****/
+
 #define NU 0.1
 
 typedef struct neural

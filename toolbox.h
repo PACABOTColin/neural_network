@@ -12,8 +12,8 @@
 
 float sigmoid(float x);
 float d_sigmoid(float x);
-float tang(float x);
-float d_tang(float x);
+//float tang(float x);
+//float d_tang(float x);
 //float d_tanh(float x);
 
 #endif /* TOOLBOX_H_ */

@@ -15,32 +15,26 @@
 
 extern float training[training_size];
 
-#define nombre_couche (10)
+#define nombre_couche (4)
 #define network_size (sum_suite_al(nombre_couche))
 #define sum_suite_al(n) ((n)*((n)+1)/2)
 
 int main(int argc, char **argv)
 {
 	double error_avr = 0;
-	float input[nombre_couche] = { };
+	float input[nombre_couche + 1];
 	int i, y = 0, sum, z;
 	srand(time(NULL));
-	neural *network;
+	neural *network_temperature;
+	neural *network_temp_cetitude;
 
 
-	network = malloc(sizeof(neural) * (network_size));	// alloc mem for all the neural network
-	for (i = 0; i < network_size; ++i)	// init neurals
+	network_temperature = malloc(sizeof(*network_temp_cetitude) * (network_size));	// alloc mem for all the neural network
+	network_temp_cetitude = malloc(sizeof(*network_temp_cetitude) * (network_size));	// alloc mem for all the neural network
+	for (i = 0; i < network_size; ++i)	// init neurons
 	{
-		if (i == 0)
-		{
-			initialise_neural(&network[i], (float)rand() * 2.0 / RAND_MAX - 1,
-								sigmoid, d_sigmoid, i);
-		}
-		else
-		{
-			initialise_neural(&network[i], (float)rand() * 2.0 / RAND_MAX - 1,
-							  sigmoid, d_sigmoid, i);
-		}
+		initialise_neural(&network_temp_cetitude[i], (float)rand() * 2.0 / RAND_MAX - 1, sigmoid, d_sigmoid, 1000+i);
+		initialise_neural(&network_temperature[i], (float)rand() * 2.0 / RAND_MAX - 1, sigmoid, d_sigmoid, i);
 	}
 	/* 
 	 * initialyse all the neural connection
@@ -67,46 +61,71 @@ int main(int argc, char **argv)
 		sum += i;
 		for (y = 0; y <= i; ++y)
 		{
-			printf("sum = %3d\t i= %3d\t link : %2d %2d & %2d\n",
-					      sum, i, sum + y, sum + y + i + 1, sum + y + i + 2);
-			neural_new_synapse(&network[sum + y + i + 1], &network[sum + y],
+			/*** link temperature neurons ***/
+			neural_new_synapse(&network_temperature[sum + y + i + 1], &network_temperature[sum + y],
 							   (float)rand() * 2.0 / RAND_MAX - 1);
-			neural_new_synapse(&network[sum + y + i + 2], &network[sum + y],
+			neural_new_synapse(&network_temperature[sum + y + i + 2], &network_temperature[sum + y],
 							   (float)rand() * 2.0 / RAND_MAX - 1);
 
+			/*** link temperature certitude neurons ***/
+			neural_new_synapse(&network_temp_cetitude[sum + y + i + 1], &network_temp_cetitude[sum + y],
+							   (float)rand() * 2.0 / RAND_MAX - 1);
+			neural_new_synapse(&network_temp_cetitude[sum + y + i + 2], &network_temp_cetitude[sum + y],
+							   (float)rand() * 2.0 / RAND_MAX - 1);
 		}
 	}
-	for (i = network_size - sum_suite_al(nombre_couche - 1); i <
-		 network_size; ++i)
+	/*** link the tow network ***/
+	for (i = 0; i < network_size; ++i)
 	{
-		neural_new_sensor_connection(&network[i], &input[i], (float)rand() *
+		neural_new_synapse(&network_temperature[i], &network_temp_cetitude[i],
+									   (float)rand() * 2.0 / RAND_MAX - 1);
+	}
+
+	for (i = network_size - nombre_couche - 1; i < network_size; ++i)
+	{
+		/*** link temperature neurons ***/
+		neural_new_sensor_connection(&network_temperature[i], &input[i], (float)rand() *
+									 2.0 / RAND_MAX - 1);
+		neural_new_sensor_connection(&network_temperature[i], &input[i + 1], (float)rand() *
+									 2.0 / RAND_MAX - 1);
+
+		/*** link temperature certitude neurons ***/
+		neural_new_sensor_connection(&network_temp_cetitude[i], &input[i], (float)rand() *
+									 2.0 / RAND_MAX - 1);
+		neural_new_sensor_connection(&network_temp_cetitude[i], &input[i + 1], (float)rand() *
 									 2.0 / RAND_MAX - 1);
 	}
 	sum = 0;
-	for (z = 0; z < 10; ++z)
+	for (z = 0; z < 1; ++z)
 	{
-		for (i = 0; i < training_size - nombre_couche - 1; ++i)
+//		for (i = 0; i < training_size - nombre_couche - 1; ++i)
+		for (i = 0; i < 1; ++i)
 		{
 			memcpy(input, &training[i], sizeof(input));
+			for (y = 0; y < network_size + 1; ++y)
+			{
+				input[y] = training[i + y];
+				printf("%f, ", input[i]);
+			}
+			printf("\n");
 			for (y = 0; y < network_size; ++y)
 			{
-				neural_set_error_to_not_calculate(&network[y]);
-				neural_set_value_to_not_calculate(&network[y]);
-				neural_set_weight_to_not_calculate(&network[y]);
+				neural_set_error_to_not_calculate(&network_temperature[y]);
+				neural_set_value_to_not_calculate(&network_temperature[y]);
+				neural_set_weight_to_not_calculate(&network_temperature[y]);
 			}
-			neural_update_output(&network[0]);
-			network[0].out_error = training[i + nombre_couche + 1]/100.00 - network[0].out_value;
-			error_avr += fabs(network[0].out_error);
+			neural_update_output(&network_temperature[0]);
+			network_temperature[0].out_error = training[i + nombre_couche + 1]/100.00 - network_temperature[0].out_value;
+			error_avr += fabs(network_temperature[0].out_error);
 			if(i % TRACE_DEEP == 0)
 			{
-				printf("%3d out %f, error = %f\n", i, network[0].out_value * 100, error_avr / TRACE_DEEP);
+				printf("%3d out %f, error = %f\n", i, network_temperature[0].out_value * 100, (error_avr / TRACE_DEEP) * 100);
 				error_avr = 0;
 			}
 			for (y = network_size - nombre_couche; y < network_size; ++y) {
-				neural_update_weigh(&network[y]);
+				neural_update_weigh(&network_temperature[y]);
 
 			}
-			return 0;
 		}
 		sleep(1);
 		sum++;
