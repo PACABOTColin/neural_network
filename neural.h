@@ -3,7 +3,6 @@
 
 #include <stdbool.h>
 
-#define LEANING_MODE
 #define NU 0.1
 
 typedef struct neural

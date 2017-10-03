@@ -6,7 +6,13 @@
 #include "neural.h"
 
 const float Biais = 1.0;
-/* add this bloc to the function for use */
+
+/**
+ * @brief
+ * @detail
+ * @param
+ * @return
+ */
 void initialise_neural(struct neural *new_neural, float biais_coef, float (*function)(float), float (*d_function)(float), int id)
 {
 
@@ -155,7 +161,6 @@ void neural_update_output(neural *current_neural)
 				printf("error in id : %d\n", current_neural->id);
 			}
 		}
-		float tmp = current_neural->out_value;
 		current_neural->out_value = current_neural->rv_function(current_neural->out_value);//sigmoid(current_neural->out_value);
 		if(isnan(current_neural->out_value))
 		{

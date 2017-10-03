@@ -46,7 +46,7 @@ void test_neral(neural neural_test, float *a, float *b)
 int main(int argc, char **argv)
 {
 	neural and_neural;
-	neural xor_nerals[3];
+	neural xor_neurals[3];
 	float a, b;
 	bool test;
 	int i, u;
@@ -132,15 +132,15 @@ int main(int argc, char **argv)
 
 	for (i = 0; i < 3; ++i)
 	{
-		initialise_neural(&xor_nerals[i], ((float)rand()) / RAND_MAX,
+		initialise_neural(&xor_neurals[i], ((float)rand()) / RAND_MAX,
 						  sigmoid, d_sigmoid, i + 1);
 	}
-	neural_new_sensor_connection(&xor_nerals[0], &a, ((float)rand()) / RAND_MAX);
-	neural_new_sensor_connection(&xor_nerals[0], &b, ((float)rand()) / RAND_MAX);
-	neural_new_sensor_connection(&xor_nerals[1], &a, ((float)rand()) / RAND_MAX);
-	neural_new_sensor_connection(&xor_nerals[1], &b, ((float)rand()) / RAND_MAX);
-	neural_new_synapse(&xor_nerals[0], &xor_nerals[2], ((float)rand()) / RAND_MAX);
-	neural_new_synapse(&xor_nerals[1], &xor_nerals[2], ((float)rand()) / RAND_MAX);
+	neural_new_sensor_connection(&xor_neurals[0], &a, ((float)rand()) / RAND_MAX);
+	neural_new_sensor_connection(&xor_neurals[0], &b, ((float)rand()) / RAND_MAX);
+	neural_new_sensor_connection(&xor_neurals[1], &a, ((float)rand()) / RAND_MAX);
+	neural_new_sensor_connection(&xor_neurals[1], &b, ((float)rand()) / RAND_MAX);
+	neural_new_synapse(&xor_neurals[0], &xor_neurals[2], ((float)rand()) / RAND_MAX);
+	neural_new_synapse(&xor_neurals[1], &xor_neurals[2], ((float)rand()) / RAND_MAX);
 	do
 	{
 		test = true;
@@ -148,123 +148,123 @@ int main(int argc, char **argv)
 		b = 0;
 		for (i = 0; i < 3; ++i)
 		{
-			neural_set_error_to_not_calculate(&xor_nerals[i]);
-			neural_set_weight_to_not_calculate(&xor_nerals[i]);
-			neural_set_value_to_not_calculate(&xor_nerals[i]);
+			neural_set_error_to_not_calculate(&xor_neurals[i]);
+			neural_set_weight_to_not_calculate(&xor_neurals[i]);
+			neural_set_value_to_not_calculate(&xor_neurals[i]);
 		}
-		neural_update_output(&xor_nerals[2]);
-		while (xor_nerals[2].out_value > 0.5)
+		neural_update_output(&xor_neurals[2]);
+		if (xor_neurals[2].out_value < 0.99)
 		{
 			test = false;
-			xor_nerals[2].out_error = -xor_nerals[2].out_value;
+			xor_neurals[2].out_error = 1 - xor_neurals[2].out_error;
 			for (i = 0; i < 3; ++i)
 			{
-				neural_set_error_to_not_calculate(&xor_nerals[i]);
-				neural_set_weight_to_not_calculate(&xor_nerals[i]);
-				neural_set_value_to_not_calculate(&xor_nerals[i]);
+				neural_set_error_to_not_calculate(&xor_neurals[i]);
+				neural_set_weight_to_not_calculate(&xor_neurals[i]);
+				neural_set_value_to_not_calculate(&xor_neurals[i]);
 			}
-			neural_update_weigh(&xor_nerals[0]);
-			neural_update_weigh(&xor_nerals[1]);
+			neural_update_weigh(&xor_neurals[0]);
+			neural_update_weigh(&xor_neurals[1]);
 			for (i = 0; i < 3; ++i)
 			{
-				neural_set_error_to_not_calculate(&xor_nerals[i]);
-				neural_set_weight_to_not_calculate(&xor_nerals[i]);
-				neural_set_value_to_not_calculate(&xor_nerals[i]);
+				neural_set_error_to_not_calculate(&xor_neurals[i]);
+				neural_set_weight_to_not_calculate(&xor_neurals[i]);
+				neural_set_value_to_not_calculate(&xor_neurals[i]);
 			}
-			neural_update_output(&xor_nerals[2]);
+			neural_update_output(&xor_neurals[2]);
 		}
 		a = 0;
 		b = 1;
 		for (i = 0; i < 3; ++i)
 		{
-			neural_set_error_to_not_calculate(&xor_nerals[i]);
-			neural_set_weight_to_not_calculate(&xor_nerals[i]);
-			neural_set_value_to_not_calculate(&xor_nerals[i]);
+			neural_set_error_to_not_calculate(&xor_neurals[i]);
+			neural_set_weight_to_not_calculate(&xor_neurals[i]);
+			neural_set_value_to_not_calculate(&xor_neurals[i]);
 		}
-		neural_update_output(&xor_nerals[2]);
-		while (xor_nerals[2].out_value < 0.5)
+		neural_update_output(&xor_neurals[2]);
+		if (xor_neurals[2].out_value < 0.99)
 		{
 			test = false;
-			xor_nerals[2].out_error = 1 - xor_nerals[2].out_value;
+			xor_neurals[2].out_error = 1 - xor_neurals[2].out_error;
 			for (i = 0; i < 3; ++i)
 			{
-				neural_set_error_to_not_calculate(&xor_nerals[i]);
-				neural_set_weight_to_not_calculate(&xor_nerals[i]);
-				neural_set_value_to_not_calculate(&xor_nerals[i]);
+				neural_set_error_to_not_calculate(&xor_neurals[i]);
+				neural_set_weight_to_not_calculate(&xor_neurals[i]);
+				neural_set_value_to_not_calculate(&xor_neurals[i]);
 			}
-			neural_update_weigh(&xor_nerals[0]);
-			neural_update_weigh(&xor_nerals[1]);
+			neural_update_weigh(&xor_neurals[0]);
+			neural_update_weigh(&xor_neurals[1]);
 			for (i = 0; i < 3; ++i)
 			{
-				neural_set_error_to_not_calculate(&xor_nerals[i]);
-				neural_set_weight_to_not_calculate(&xor_nerals[i]);
-				neural_set_value_to_not_calculate(&xor_nerals[i]);
+				neural_set_error_to_not_calculate(&xor_neurals[i]);
+				neural_set_weight_to_not_calculate(&xor_neurals[i]);
+				neural_set_value_to_not_calculate(&xor_neurals[i]);
 			}
-			neural_update_output(&xor_nerals[2]);
+			neural_update_output(&xor_neurals[2]);
 		}
 		a = 1;
 		b = 0;
 		for (i = 0; i < 3; ++i)
 		{
-			neural_set_error_to_not_calculate(&xor_nerals[i]);
-			neural_set_weight_to_not_calculate(&xor_nerals[i]);
-			neural_set_value_to_not_calculate(&xor_nerals[i]);
+			neural_set_error_to_not_calculate(&xor_neurals[i]);
+			neural_set_weight_to_not_calculate(&xor_neurals[i]);
+			neural_set_value_to_not_calculate(&xor_neurals[i]);
 		}
-		neural_update_output(&xor_nerals[2]);
-		while (xor_nerals[2].out_value < 0.5)
+		neural_update_output(&xor_neurals[2]);
+		if (xor_neurals[2].out_value < 0.99)
 		{
 			test = false;
-			xor_nerals[2].out_error = 1 - xor_nerals[2].out_value;
+			xor_neurals[2].out_error = 1 - xor_neurals[2].out_error;
 			for (i = 0; i < 3; ++i)
 			{
-				neural_set_error_to_not_calculate(&xor_nerals[i]);
-				neural_set_weight_to_not_calculate(&xor_nerals[i]);
-				neural_set_value_to_not_calculate(&xor_nerals[i]);
+				neural_set_error_to_not_calculate(&xor_neurals[i]);
+				neural_set_weight_to_not_calculate(&xor_neurals[i]);
+				neural_set_value_to_not_calculate(&xor_neurals[i]);
 			}
-			neural_update_weigh(&xor_nerals[0]);
-			neural_update_weigh(&xor_nerals[1]);
+			neural_update_weigh(&xor_neurals[0]);
+			neural_update_weigh(&xor_neurals[1]);
 			for (i = 0; i < 3; ++i)
 			{
-				neural_set_error_to_not_calculate(&xor_nerals[i]);
-				neural_set_weight_to_not_calculate(&xor_nerals[i]);
-				neural_set_value_to_not_calculate(&xor_nerals[i]);
+				neural_set_error_to_not_calculate(&xor_neurals[i]);
+				neural_set_weight_to_not_calculate(&xor_neurals[i]);
+				neural_set_value_to_not_calculate(&xor_neurals[i]);
 			}
-			neural_update_output(&xor_nerals[2]);
+			neural_update_output(&xor_neurals[2]);
 		}
 		a = 1;
 		b = 1;
 		for (i = 0; i < 3; ++i)
 		{
-			neural_set_error_to_not_calculate(&xor_nerals[i]);
-			neural_set_weight_to_not_calculate(&xor_nerals[i]);
-			neural_set_value_to_not_calculate(&xor_nerals[i]);
+			neural_set_error_to_not_calculate(&xor_neurals[i]);
+			neural_set_weight_to_not_calculate(&xor_neurals[i]);
+			neural_set_value_to_not_calculate(&xor_neurals[i]);
 		}
-		neural_update_output(&xor_nerals[2]);
-		while (xor_nerals[2].out_value > 0.5)
+		neural_update_output(&xor_neurals[2]);
+		if (xor_neurals[2].out_value < 0.99)
 		{
 			test = false;
-			xor_nerals[2].out_error = -xor_nerals[2].out_value;
+			xor_neurals[2].out_error = 1 - xor_neurals[2].out_error;
 			for (i = 0; i < 3; ++i)
 			{
-				neural_set_error_to_not_calculate(&xor_nerals[i]);
-				neural_set_weight_to_not_calculate(&xor_nerals[i]);
-				neural_set_value_to_not_calculate(&xor_nerals[i]);
+				neural_set_error_to_not_calculate(&xor_neurals[i]);
+				neural_set_weight_to_not_calculate(&xor_neurals[i]);
+				neural_set_value_to_not_calculate(&xor_neurals[i]);
 			}
-			neural_update_weigh(&xor_nerals[0]);
-			neural_update_weigh(&xor_nerals[1]);
+			neural_update_weigh(&xor_neurals[0]);
+			neural_update_weigh(&xor_neurals[1]);
 			for (i = 0; i < 3; ++i)
 			{
-				neural_set_error_to_not_calculate(&xor_nerals[i]);
-				neural_set_weight_to_not_calculate(&xor_nerals[i]);
-				neural_set_value_to_not_calculate(&xor_nerals[i]);
+				neural_set_error_to_not_calculate(&xor_neurals[i]);
+				neural_set_weight_to_not_calculate(&xor_neurals[i]);
+				neural_set_value_to_not_calculate(&xor_neurals[i]);
 			}
-			neural_update_output(&xor_nerals[2]);
+			neural_update_output(&xor_neurals[2]);
 		}
 		for (i = 0; i < 3; ++i)
 		{
-			for (u = 1; u < xor_nerals[i].in_table_size; ++u)
+			for (u = 1; u < xor_neurals[i].in_table_size; ++u)
 			{
-				printf("%8f,", xor_nerals[i].coef_table[u]);
+				printf("%8f,", xor_neurals[i].coef_table[u]);
 			}
 			printf("|");
 		}
@@ -276,42 +276,42 @@ int main(int argc, char **argv)
 	b = 1;
 	for (i = 0; i < 3; ++i)
 	{
-		neural_set_error_to_not_calculate(&xor_nerals[i]);
-		neural_set_weight_to_not_calculate(&xor_nerals[i]);
-		neural_set_value_to_not_calculate(&xor_nerals[i]);
+		neural_set_error_to_not_calculate(&xor_neurals[i]);
+		neural_set_weight_to_not_calculate(&xor_neurals[i]);
+		neural_set_value_to_not_calculate(&xor_neurals[i]);
 	}
-	neural_update_output(&xor_nerals[2]);
-	printf("test a=%f, b=%f, out = %f\n", a, b, xor_nerals[2].out_value);
+	neural_update_output(&xor_neurals[2]);
+	printf("test a=%f, b=%f, out = %f\n", a, b, xor_neurals[2].out_value);
 	a = 0;
 	b = 1;
 	for (i = 0; i < 3; ++i)
 	{
-		neural_set_error_to_not_calculate(&xor_nerals[i]);
-		neural_set_weight_to_not_calculate(&xor_nerals[i]);
-		neural_set_value_to_not_calculate(&xor_nerals[i]);
+		neural_set_error_to_not_calculate(&xor_neurals[i]);
+		neural_set_weight_to_not_calculate(&xor_neurals[i]);
+		neural_set_value_to_not_calculate(&xor_neurals[i]);
 	}
-	neural_update_output(&xor_nerals[2]);
-	printf("test a=%f, b=%f, out = %f\n", a, b, xor_nerals[2].out_value);
+	neural_update_output(&xor_neurals[2]);
+	printf("test a=%f, b=%f, out = %f\n", a, b, xor_neurals[2].out_value);
 	a = 1;
 	b = 0;
 	for (i = 0; i < 3; ++i)
 	{
-		neural_set_error_to_not_calculate(&xor_nerals[i]);
-		neural_set_weight_to_not_calculate(&xor_nerals[i]);
-		neural_set_value_to_not_calculate(&xor_nerals[i]);
+		neural_set_error_to_not_calculate(&xor_neurals[i]);
+		neural_set_weight_to_not_calculate(&xor_neurals[i]);
+		neural_set_value_to_not_calculate(&xor_neurals[i]);
 	}
-	neural_update_output(&xor_nerals[2]);
-	printf("test a=%f, b=%f, out = %f\n", a, b, xor_nerals[2].out_value);
+	neural_update_output(&xor_neurals[2]);
+	printf("test a=%f, b=%f, out = %f\n", a, b, xor_neurals[2].out_value);
 	a = 0;
 	b = 0;
 	for (i = 0; i < 3; ++i)
 	{
-		neural_set_error_to_not_calculate(&xor_nerals[i]);
-		neural_set_weight_to_not_calculate(&xor_nerals[i]);
-		neural_set_value_to_not_calculate(&xor_nerals[i]);
+		neural_set_error_to_not_calculate(&xor_neurals[i]);
+		neural_set_weight_to_not_calculate(&xor_neurals[i]);
+		neural_set_value_to_not_calculate(&xor_neurals[i]);
 	}
-	neural_update_output(&xor_nerals[2]);
-	printf("test a=%f, b=%f, out = %f\n", a, b, xor_nerals[2].out_value);
+	neural_update_output(&xor_neurals[2]);
+	printf("test a=%f, b=%f, out = %f\n", a, b, xor_neurals[2].out_value);
 	return 0;
 
 	// float input [network_size]= {};
