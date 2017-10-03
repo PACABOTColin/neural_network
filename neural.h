@@ -7,6 +7,7 @@
 
 typedef struct neural
 {
+
 	int in_table_size;
 	float **in_value_table;
 	float *coef_table;
@@ -22,10 +23,11 @@ typedef struct neural
 	float gradian;
 	int out_table_size;
 	struct neural **out_neural_table;
-	int id;
+	unsigned int friendly_id;
+	unsigned int network_id;
 }neural;
 
-void initialise_neural(struct neural *new_neural, float biais_coef, float (*function)(float), float (*d_function)(float), int id);
+void initialise_neural(struct neural *new_neural, float biais_coef, float (*function)(float), float (*d_function)(float), unsigned int id);
 //void initialise_neural(neural *new_neural, float biais_coef);
 int neural_new_synapse(neural* father, neural* child, float coef);
 int neural_new_sensor_connection(neural* sensor_neural, float *value, float coef);

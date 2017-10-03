@@ -5,6 +5,9 @@
 #include "toolbox.h"
 #include "neural.h"
 
+
+#include <unistd.h>
+
 const float Biais = 1.0;
 
 /**
@@ -13,13 +16,19 @@ const float Biais = 1.0;
  * @param
  * @return
  */
-void initialise_neural(struct neural *new_neural, float biais_coef, float (*function)(float), float (*d_function)(float), int id)
+/* add this bloc to the function for use */
+void initialise_neural(struct neural *new_neural, float biais_coef, float (*function)(float), float (*d_function)(float), unsigned int id)
 {
+	static unsigned int auto_id = 0;
+
+	printf("init %d\n", id);
 
  	new_neural->rv_function = function;
  	new_neural->d_rv_function = d_function;
+
 //void initialise_neural(neural *new_neural, float biais_coef)
 //{
+
  	new_neural->in_table_size = 0;
  	new_neural->in_value_table=NULL;
  	new_neural->coef_table = NULL;
@@ -28,7 +37,12 @@ void initialise_neural(struct neural *new_neural, float biais_coef, float (*func
  	new_neural->out_error = 0;
  	new_neural->out_table_size = 0;
  	new_neural->out_neural_table = NULL;
- 	new_neural->id = id;
+ 	new_neural->friendly_id = id;
+ 	new_neural->network_id = auto_id;
+ 	new_neural->out_value_calculated = false;
+ 	new_neural->error_calculated = false;
+ 	new_neural->weight_calculated = false;
+ 	++auto_id;
  	neural_new_sensor_connection(new_neural, &Biais, biais_coef);
 	neural_set_value_to_not_calculate(new_neural);
 	neural_set_error_to_not_calculate(new_neural);
@@ -124,6 +138,8 @@ void neural_calculate_gradian(neural *current_neural)
 
 void neural_update_weigh(neural *current_neural)
 {
+	printf("neural : %d\n", current_neural->friendly_id);
+	usleep(100000);
 	if (current_neural->weight_calculated == false)
 	{
 		current_neural->weight_calculated = true;
@@ -144,28 +160,33 @@ void neural_update_weigh(neural *current_neural)
 
 void neural_update_output(neural *current_neural)
 {
+	printf("neural : %d\n", current_neural->friendly_id);
+	usleep(100000);
 	int i;
-	if(current_neural->out_value_calculated == false)
+	if(current_neural->out_value_calculated == false) // if the value is not already calculated
 	{
-		current_neural->out_value_calculated = true;
-		current_neural->out_value = 0;
-		for (i = 0; i < current_neural->in_table_size; ++i)
+		current_neural->out_value_calculated = true;  // set the value to calculated
+		current_neural->out_value = 0; 					//reset the out value
+		for (i = 0; i < current_neural->in_table_size; ++i) // for all the input into the neural
 		{
-			if(current_neural->in_neural_table[i] != NULL)
+			if(current_neural->in_neural_table[i] != NULL) // if the input is a neural
 			{
-				neural_update_output(current_neural->in_neural_table[i]);
+				neural_update_output(current_neural->in_neural_table[i]); // update the output of the input neural
 			}
-			current_neural->out_value += *(current_neural->in_value_table[i]) * current_neural->coef_table[i];
-			if(isnan(current_neural->out_value))
+			current_neural->out_value += *(current_neural->in_value_table[i]) * current_neural->coef_table[i]; // add the input value to the output value
+			current_neural->out_value = 0;
+			if(isnan(current_neural->out_value)) // verify if there is not an error (should not be true)
 			{
-				printf("error in id : %d\n", current_neural->id);
+				printf("error in id : %d\n", current_neural->friendly_id);
 			}
 		}
-		current_neural->out_value = current_neural->rv_function(current_neural->out_value);//sigmoid(current_neural->out_value);
-		if(isnan(current_neural->out_value))
+		printf("neural : %d l84\n", current_neural->friendly_id); // debug print
+		current_neural->out_value = current_neural->rv_function(current_neural->out_value); // put the out value into the transfert function
+		if(isnan(current_neural->out_value)) // verify if there is not an error (should not be true)
 		{
-			printf("error in id %d\n", current_neural->id);
+			printf("error in id %d\n", current_neural->friendly_id);
 		}
+		printf("the neural : %d done updated\n", current_neural->friendly_id); // debug print
 	}
 }
 
