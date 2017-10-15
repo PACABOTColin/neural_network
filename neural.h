@@ -11,10 +11,12 @@
 
 /****end of debug define****/
 
-#define NU 0.1
+#define NU 0.00001
 
 typedef struct neural
 {
+	unsigned int friendly_id;
+	unsigned int id;
 
 	int in_table_size;
 	float **in_value_table;
@@ -31,8 +33,6 @@ typedef struct neural
 	float gradian;
 	int out_table_size;
 	struct neural **out_neural_table;
-	unsigned int friendly_id;
-	unsigned int network_id;
 }neural;
 
 void initialise_neural(struct neural *new_neural, float biais_coef, float (*function)(float), float (*d_function)(float), unsigned int id);

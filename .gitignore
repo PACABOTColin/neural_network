@@ -39,3 +39,4 @@ Debug/*
 *.su
 
 /Debug/
+/Release/

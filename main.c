@@ -13,8 +13,8 @@
 int main(int argc, char **argv)
 {
 	int ids []={0, 10, 11, 20,21,22,30,31,32,33};
-	double error_avr = 0;
-	float input[nombre_couche + 1];
+	double error_avr = 0, error_big_avr = 0;
+	float input[nombre_couche + 2];
 	int i, y = 0, sum, z;
 	srand(time(NULL));
 	neural *network_temperature;
@@ -89,14 +89,22 @@ int main(int argc, char **argv)
 		++sum;
 	}
 	sum = 0;
-	for (z = 0; z < 100; ++z)
+
+	do
 	{
-		for (i = 0; i < training_size - nombre_couche - 1; ++i)
+		error_big_avr = 0;
+		for (i = 0; i < training_size - nombre_couche - 2; ++i)
 		{
 //			memcpy(input, &training[i], sizeof(input)); // understand whit this don't work;
-			for (y = 0; y < nombre_couche + 1; ++y)
+//			for (y = 0; y < nombre_couche + 1; ++y)
+//			{
+//				printf("%f,", input[y]);
+//			}
+//			printf("\n");
+			for (y = 0; y < nombre_couche + 2; ++y)
 			{
 				input[y] = training[i + y];
+//				printf("%f,", input[y]);
 			}
 			for (y = 0; y < network_size; ++y)
 			{
@@ -109,17 +117,21 @@ int main(int argc, char **argv)
 			error_avr += fabs(network_temperature[0].out_error);
 			if(i % TRACE_DEEP == 0)
 			{
-				printf("%3d out %f, error = %f\n", i, network_temperature[0].out_value * 100, (error_avr / TRACE_DEEP) * 100);
+
+				error_big_avr += (error_avr / TRACE_DEEP) * 100;
+				printf("out %5.2f, error = %5.2f\t", network_temperature[0].out_value * 100, (error_avr / TRACE_DEEP) * 100);
 				error_avr = 0;
 			}
-			for (y = network_size - nombre_couche; y < network_size; ++y) {
+			for (y = network_size - nombre_couche; y < network_size; ++y)
+			{
 				neural_update_weigh(&network_temperature[y]);
-
 			}
 		}
-		sleep(1);
+		save_network(network_temperature,"network.xml");
+		printf("\n error avr = %f\n", error_big_avr * TRACE_DEEP / (training_size - nombre_couche - 2));
+//		sleep(1);
 		sum++;
-	}
+	} while(error_big_avr * TRACE_DEEP / (training_size - nombre_couche - 2) > 3.00);
 
 	// for (ii = 0; ii < training_size - network_size; ++ii)
 	// {

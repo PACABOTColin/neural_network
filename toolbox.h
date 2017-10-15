@@ -15,5 +15,6 @@ float d_sigmoid(float x);
 //float tang(float x);
 //float d_tang(float x);
 //float d_tanh(float x);
+char* get_function_name(void *function_pt);
 
 #endif /* TOOLBOX_H_ */

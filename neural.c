@@ -1,11 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <unistd.h>
 
 #include "neural.h"
-
-
-#include <unistd.h>
 
 const float Biais = 1.0;
 
@@ -37,7 +35,7 @@ void initialise_neural(struct neural *new_neural, float biais_coef, float (*func
  	new_neural->out_table_size = 0;
  	new_neural->out_neural_table = NULL;
  	new_neural->friendly_id = id;
- 	new_neural->network_id = auto_id;
+ 	new_neural->id = auto_id;
  	new_neural->out_value_calculated = false;
  	new_neural->error_calculated = false;
  	new_neural->weight_calculated = false;
